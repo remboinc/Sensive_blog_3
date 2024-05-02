@@ -26,17 +26,11 @@ def serialize_tag(tag):
 
 def index(request):
     most_popular_posts = Post.objects.popular(
-    ).annotate(tags_count=Count('tags')).prefetch_related(
-        Prefetch('author'),
-        Prefetch('tags', queryset=Tag.objects.order_by('title').annotate(
-            posts_with_tag_count=Count('posts')))
+    ).annotate(tags_count=Count('tags')).fetch_with_tags_counts(
     ).fetch_with_comments_count()[:5]
 
     most_fresh_posts = Post.objects.fresh(
-    ).annotate(tags_count=Count('tags')).prefetch_related(
-        Prefetch('author'),
-        Prefetch('tags', queryset=Tag.objects.order_by('title').annotate(
-            posts_with_tag_count=Count('posts')))
+    ).annotate(tags_count=Count('tags')).fetch_with_tags_counts(
     ).fetch_with_comments_count()[:5]
 
     most_popular_tags = Tag.objects.popular(
@@ -87,12 +81,7 @@ def post_detail(request, slug):
 
     most_popular_posts = Post.objects.popular().annotate(
         tags_count=Count('tags')
-    ).prefetch_related(
-        Prefetch('author'),
-        Prefetch('tags', queryset=Tag.objects.order_by('title').annotate(
-            posts_with_tag_count=Count('posts'))
-                 )
-    ).fetch_with_comments_count()[:5]
+    ).fetch_with_tags_counts().fetch_with_comments_count()[:5]
 
     context = {
         'post': serialized_post,
@@ -110,17 +99,11 @@ def tag_filter(request, tag_title):
         posts_with_tag_count=Count('posts'))[:5]
 
     most_popular_posts = Post.objects.popular().annotate(
-        tags_count=Count('tags')).prefetch_related(
-        Prefetch('author'),
-        Prefetch('tags', queryset=Tag.objects.order_by('title').annotate(
-            posts_with_tag_count=Count('posts')))
+        tags_count=Count('tags')).fetch_with_tags_counts(
     ).fetch_with_comments_count()[:5]
 
     related_posts = Post.objects.filter(tags=tag).annotate(
-        comments_count=Count('comments')).prefetch_related(
-        Prefetch('author'),
-        Prefetch('tags', queryset=Tag.objects.order_by('title').annotate(
-            posts_with_tag_count=Count('posts')))
+        comments_count=Count('comments')).fetch_with_tags_counts(
     ).all()[:20]
 
     context = {
