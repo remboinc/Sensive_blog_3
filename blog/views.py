@@ -1,5 +1,5 @@
-from django.db.models import Count, Prefetch, F
-from django.shortcuts import render
+from django.db.models import Count, F
+from django.shortcuts import render, get_object_or_404
 from blog.models import Comment, Post, Tag
 
 
@@ -47,11 +47,11 @@ def index(request):
 
 
 def post_detail(request, slug):
-    post = Post.objects.annotate(
-        likes_count=Count('likes')
-    ).prefetch_related(
-        'tags', 'author'
-    ).get(slug=slug)
+    post = get_object_or_404(
+        Post.objects.annotate(likes_count=Count('likes'))
+        .prefetch_related('tags', 'author'),
+        slug=slug
+    )
 
     comments = Comment.objects.filter(post=post).annotate(
         author_username=F('author__username')
