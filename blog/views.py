@@ -53,13 +53,11 @@ def post_detail(request, slug):
         slug=slug
     )
 
-    comments = Comment.objects.filter(post=post).annotate(
+    comments = post.comments.annotate(
         author_username=F('author__username')
     ).values('text', 'published_at', 'author_username')
 
-    related_tags = Tag.objects.filter(
-        posts=post
-    ).annotate(
+    related_tags = post.tags.annotate(
         posts_with_tag_count=Count('posts')
     )
 
