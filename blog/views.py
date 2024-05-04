@@ -102,7 +102,7 @@ def tag_filter(request, tag_title):
         tags_count=Count('tags')).fetch_with_tags_counts(
     ).fetch_with_comments_count()[:5]
 
-    related_posts = Post.objects.filter(tags=tag).annotate(
+    related_posts = tag.posts.annotate(
         comments_count=Count('comments')).fetch_with_tags_counts(
     ).all()[:20]
 
