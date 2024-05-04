@@ -90,8 +90,10 @@ def post_detail(request, slug):
 
 
 def tag_filter(request, tag_title):
-    tag = Tag.objects.annotate(
-        posts_with_tag_count=Count('posts')).get(title=tag_title)
+    tag = get_object_or_404(
+        Tag.objects.annotate(
+            posts_with_tag_count=Count('posts')), title=tag_title
+    )
 
     most_popular_tags = Tag.objects.popular().annotate(
         posts_with_tag_count=Count('posts'))[:5]
